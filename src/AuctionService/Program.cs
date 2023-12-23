@@ -1,4 +1,5 @@
 using AuctionService.Data;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,15 +9,25 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // builder.WebHost.UseUrls("http://localhost:7001");
 
-builder.Services.AddDbContext<AuctionDbContext>(opt => {
-    opt.UseNpgsql(builder.Configuration["ConnectionStrings:DefaultConnection"]);
+builder.Services.AddDbContext<AuctionDbContext>(opt =>
+{
+	opt.UseNpgsql(builder.Configuration["ConnectionStrings:DefaultConnection"]);
 
 });
 
 // 取得現在 App Domain (這個進程 process 下) 下所有的 asmbly
-// AddAutoMapper 會找哪個 class 繼承 Profile
+// AddAutoMapper 會找哪個 class 繼承 Profile承 Profilele承 Profilelele承 Profilelelele承 Profile
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
+builder.Services.AddMassTransit(c =>
+{
+	c.UsingRabbitMq((context, cfg) =>
+	{
+		cfg.ConfigureEndpoints(context);
+	});
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,16 +37,20 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope()) {
-    try {
+using (var scope = app.Services.CreateScope())
+{
+	try
+	{
 
-        var context = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
+		var context = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
 
-        await DbInitializer.InitializeAsync(context);
-    } catch (Exception ex) {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Problem Initialize Auction Database");
-    }
+		await DbInitializer.InitializeAsync(context);
+	}
+	catch (Exception ex)
+	{
+		var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+		logger.LogError(ex, "Problem Initialize Auction Database");
+	}
 }
 
 app.Run();

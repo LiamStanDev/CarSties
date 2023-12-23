@@ -10,119 +10,133 @@ namespace AuctionService.Controllers;
 
 [ApiController]
 [Route("api/auctions")]
-public class AuctionsController : ControllerBase {
-    private readonly AuctionDbContext _context;
-    private readonly IMapper _mapper;
+public class AuctionsController : ControllerBase
+{
+	private readonly AuctionDbContext _context;
+	private readonly IMapper _mapper;
 
-    public AuctionsController(AuctionDbContext context, IMapper mapper) {
-        _context = context;
-        _mapper = mapper;
-    }
-
-
-    /// <summary>
-    /// Return all auctions which update time larger than give date.
-    /// </summary>
-    [HttpGet]
-    public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions(string date) {
-
-        var query = _context.Auctions.OrderBy(a => a.Item.Make).AsQueryable();
-
-        if (!string.IsNullOrEmpty(date)) {
-            query = query.Where(a => a.UpdatedAt.CompareTo(DateTime.Parse(date).ToUniversalTime()) > 0);
-        }
-
-        // ProjectTo is automapper extension method for not to write include.
-        return await query.ProjectTo<AuctionDto>(_mapper.ConfigurationProvider).ToListAsync();
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<AuctionDto>> GetAuctionById(Guid id) {
-        var auction = await _context.Auctions
-            .Include(a => a.Item)
-            .FirstOrDefaultAsync(a => a.Id == id); // FindAsync 無法使用 Queryable, 故沒辦法接在 Include 後
+	public AuctionsController(AuctionDbContext context, IMapper mapper)
+	{
+		_context = context;
+		_mapper = mapper;
+	}
 
 
-        if (auction is null) {
-            return NotFound();
-        }
+	/// <summary>
+	/// Return all auctions which update time larger than give date.
+	/// </summary>
+	[HttpGet]
+	public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions(string date)
+	{
 
-        return _mapper.Map<AuctionDto>(auction);
-    }
+		var query = _context.Auctions.OrderBy(a => a.Item.Make).AsQueryable();
 
-    [HttpPost]
-    public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto) {
-        var newAuction = _mapper.Map<Auction>(createAuctionDto);
+		if (!string.IsNullOrEmpty(date))
+		{
+			query = query.Where(a => a.UpdatedAt.CompareTo(DateTime.Parse(date).ToUniversalTime()) > 0);
+		}
 
-        // TODO: add current user as seller
-        newAuction.Seller = "test";
+		// ProjectTo is automapper extension method for not to write include.
+		return await query.ProjectTo<AuctionDto>(_mapper.ConfigurationProvider).ToListAsync();
+	}
 
-        await _context.Auctions.AddAsync(newAuction);
-
-        var result = await _context.SaveChangesAsync() > 0;
-
-        if (!result) {
-            return BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
-        }
-
-        // 也可以使用 CreateAtRoute, 但就需要使用 Name Prop
-        // Response Header 中會有 Location: http://localhost:7001/api/auctions/8d24b2f0-5168-4801-a1a3-e2693485b1cd
-        return CreatedAtAction(
-                nameof(GetAuctionById),
-                new { newAuction.Id },
-                _mapper.Map<AuctionDto>(newAuction)
-        );
-    }
-
-    // NOTE: This feature may need to remove, because auction continue, the auction item can't change.
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto) {
-        var auction = await _context.Auctions
-            .Include(a => a.Item)
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (auction is null) {
-            return NotFound();
-        }
-
-        // TODO: check seller == username
-
-        auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
-        auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
-        auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
-        auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
-        auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage;
+	[HttpGet("{id}")]
+	public async Task<ActionResult<AuctionDto>> GetAuctionById(Guid id)
+	{
+		var auction = await _context.Auctions
+			.Include(a => a.Item)
+			.FirstOrDefaultAsync(a => a.Id == id); // FindAsync 無法使用 Queryable, 故沒辦法接在 Include 後
 
 
-        var result = await _context.SaveChangesAsync() > 0;
+		if (auction is null)
+		{
+			return NotFound();
+		}
 
-        if (!result) {
-            return BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
-        }
+		return _mapper.Map<AuctionDto>(auction);
+	}
 
-        return Ok();
-    }
+	[HttpPost]
+	public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto)
+	{
+		var newAuction = _mapper.Map<Auction>(createAuctionDto);
 
-    // NOTE: Delete is for admin user, because the client may want to revert their auction.
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteAuction(Guid id) {
-        var auction = await _context.Auctions.FindAsync(id);
+		// TODO: add current user as seller
+		newAuction.Seller = "test";
 
-        if (auction is null) {
-            return NotFound();
-        }
+		await _context.Auctions.AddAsync(newAuction);
 
-        // TODO: check auction.Seller == username
+		var result = await _context.SaveChangesAsync() > 0;
 
-        _context.Auctions.Remove(auction);
+		if (!result)
+		{
+			return BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
+		}
 
-        var result = await _context.SaveChangesAsync() > 0;
+		// 也可以使用 CreateAtRoute, 但就需要使用 Name Prop
+		// Response Header 中會有 Location: http://localhost:7001/api/auctions/8d24b2f0-5168-4801-a1a3-e2693485b1cd
+		return CreatedAtAction(
+				nameof(GetAuctionById),
+				new { newAuction.Id },
+				_mapper.Map<AuctionDto>(newAuction)
+		);
+	}
 
-        if (!result) {
-            return BadRequest(new ProblemDetails { Title = "Could not update database" });
-        }
+	// NOTE: This feature may need to remove, because auction continue, the auction item can't change.
+	[HttpPut("{id}")]
+	public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
+	{
+		var auction = await _context.Auctions
+			.Include(a => a.Item)
+			.FirstOrDefaultAsync(a => a.Id == id);
 
-        return Ok();
-    }
+		if (auction is null)
+		{
+			return NotFound();
+		}
+
+		// TODO: check seller == username
+
+		auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
+		auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
+		auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
+		auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
+		auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage;
+
+
+		var result = await _context.SaveChangesAsync() > 0;
+
+		if (!result)
+		{
+			return BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
+		}
+
+		return Ok();
+	}
+
+	// NOTE: Delete is for admin user, because the client may want to revert their auction.
+	[HttpDelete("{id}")]
+	public async Task<IActionResult> DeleteAuction(Guid id)
+	{
+		var auction = await _context.Auctions.FindAsync(id);
+
+		if (auction is null)
+		{
+			return NotFound();
+		}
+
+		// TODO: check auction.Seller == username
+
+		_context.Auctions.Remove(auction);
+
+		var result = await _context.SaveChangesAsync() > 0;
+
+		if (!result)
+		{
+			return BadRequest(new ProblemDetails { Title = "Could not update database" });
+		}
+
+		return Ok();
+	}
 }
 
