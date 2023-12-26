@@ -17,14 +17,14 @@ public class SearchController : ControllerBase
 		if (!string.IsNullOrEmpty(searchParams.SearchTerm))
 		{
 			// the other choice is Search.Fuzzy 
-			query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
+			query = query.Match(Search.Full, searchParams.SearchTerm).SortByTextScore();
 		}
 
 		// Sorting
 		query = searchParams.OrderBy switch
 		{
 			"make" => query.Sort(builder => builder.Ascending(i => i.Make)),
-			"new" => query.Sort(builder => builder.Ascending(i => i.CreatedAt)),
+			"new" => query.Sort(builder => builder.Descending(i => i.CreatedAt)),
 			_ => query.Sort(builder => builder.Ascending(i => i.AuctionEnd))
 		};
 
@@ -50,6 +50,7 @@ public class SearchController : ControllerBase
 		query.PageNumber(searchParams.PageNumber);
 		query.PageSize(searchParams.PageSize);
 
+
 		var result = await query.ExecuteAsync();
 
 
@@ -62,4 +63,3 @@ public class SearchController : ControllerBase
 	}
 
 }
-

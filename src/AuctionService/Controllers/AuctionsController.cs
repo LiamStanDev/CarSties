@@ -3,6 +3,8 @@ using AuctionService.DTOs;
 using AuctionService.Entities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +16,13 @@ public class AuctionsController : ControllerBase
 {
 	private readonly AuctionDbContext _context;
 	private readonly IMapper _mapper;
+	private readonly IPublishEndpoint _publishEndpoint;
 
-	public AuctionsController(AuctionDbContext context, IMapper mapper)
+	public AuctionsController(AuctionDbContext context, IMapper mapper, IPublishEndpoint publishEndpoint)
 	{
 		_context = context;
 		_mapper = mapper;
+		_publishEndpoint = publishEndpoint;
 	}
 
 
@@ -63,10 +67,14 @@ public class AuctionsController : ControllerBase
 
 		// TODO: add current user as seller
 		newAuction.Seller = "test";
-
 		await _context.Auctions.AddAsync(newAuction);
 
+		var newAuctionDto = _mapper.Map<AuctionDto>(newAuction);
+		await _publishEndpoint.Publish<AuctionCreated>(_mapper.Map<AuctionCreated>(newAuctionDto));
+
+		// EntityFramework 會實體追蹤，會直接更新 Id
 		var result = await _context.SaveChangesAsync() > 0;
+
 
 		if (!result)
 		{
@@ -78,7 +86,7 @@ public class AuctionsController : ControllerBase
 		return CreatedAtAction(
 				nameof(GetAuctionById),
 				new { newAuction.Id },
-				_mapper.Map<AuctionDto>(newAuction)
+				newAuctionDto
 		);
 	}
 
@@ -103,6 +111,7 @@ public class AuctionsController : ControllerBase
 		auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
 		auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage;
 
+		await _publishEndpoint.Publish<AuctionUpdated>(_mapper.Map<AuctionUpdated>(auction));
 
 		var result = await _context.SaveChangesAsync() > 0;
 
@@ -127,7 +136,10 @@ public class AuctionsController : ControllerBase
 
 		// TODO: check auction.Seller == username
 
+
 		_context.Auctions.Remove(auction);
+
+		await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
 
 		var result = await _context.SaveChangesAsync() > 0;
 

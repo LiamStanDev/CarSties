@@ -1,6 +1,7 @@
 using MassTransit;
 using Polly;
 using Polly.Extensions.Http;
+using SearchService.Consumers;
 using SearchService.Data;
 using SearchService.Service;
 
@@ -10,14 +11,31 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<AuctionSvcHttpClient>().AddPolicyHandler(GetPolicy());
-
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddMassTransit(c =>
 {
+	c.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
+	// KebabCase is list 'this-is-a-template'
+	// 將默認的 exchange 與 queue 的名稱 AuctionCreated 添加前綴為
+	// search-AuctionCreated 以免多個微服務命名衝突。
+	c.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
+
 	c.UsingRabbitMq((context, cfg) =>
 	{
+
+		// 添加 Retry
+		cfg.ReceiveEndpoint("search-auction-created", e =>
+		{
+			e.UseMessageRetry(r => r.Interval(5, 5));
+
+			e.ConfigureConsumer<AuctionCreatedConsumer>(context);
+		});
+
+		// need below all cfg
 		cfg.ConfigureEndpoints(context);
 	});
+
 });
 
 
@@ -42,7 +60,6 @@ app.Lifetime.ApplicationStarted.Register(async () =>
 
 	try
 	{
-
 		await DbInitializer.Initialize(app);
 	}
 	catch (Exception ex)
@@ -59,6 +76,6 @@ app.Run();
 static IAsyncPolicy<HttpResponseMessage> GetPolicy() =>
 	HttpPolicyExtensions.HandleTransientHttpError()
 	.OrResult(res => res.StatusCode == System.Net.HttpStatusCode.NotFound)
-	.WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3)); // 裡面的 Func 給參數的話，會變成 exponential pooling
+	.WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3)); // 若使用參數則會變成 exponential polling
 
 

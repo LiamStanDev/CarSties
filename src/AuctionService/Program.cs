@@ -1,3 +1,4 @@
+using AuctionService.Consumer;
 using AuctionService.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -16,15 +17,26 @@ builder.Services.AddDbContext<AuctionDbContext>(opt =>
 });
 
 // 取得現在 App Domain (這個進程 process 下) 下所有的 asmbly
-// AddAutoMapper 會找哪個 class 繼承 Profile承 Profilele承 Profilelele承 Profilelelele承 Profile
+// AddAutoMapper 會找哪個 class 繼承 Profile
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 // builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 builder.Services.AddMassTransit(c =>
 {
+	c.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
+	c.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
+
 	c.UsingRabbitMq((context, cfg) =>
 	{
 		cfg.ConfigureEndpoints(context);
+	});
+
+	// 添加 OutBox 用來確保 Consistency
+	c.AddEntityFrameworkOutbox<AuctionDbContext>(o =>
+	{
+		o.UsePostgres();
+		o.UseBusOutbox();
+		o.QueryDelay = TimeSpan.FromSeconds(10); // 向 RabbitMQ 重傳間隔
 	});
 });
 
