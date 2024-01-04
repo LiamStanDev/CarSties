@@ -5,6 +5,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Contracts;
 using MassTransit;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,13 +61,13 @@ public class AuctionsController : ControllerBase
 		return _mapper.Map<AuctionDto>(auction);
 	}
 
+	[Authorize]
 	[HttpPost]
 	public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto)
 	{
 		var newAuction = _mapper.Map<Auction>(createAuctionDto);
 
-		// TODO: add current user as seller
-		newAuction.Seller = "test";
+		newAuction.Seller = User.Identity.Name;
 		await _context.Auctions.AddAsync(newAuction);
 
 		var newAuctionDto = _mapper.Map<AuctionDto>(newAuction);
@@ -91,6 +92,7 @@ public class AuctionsController : ControllerBase
 	}
 
 	// NOTE: This feature may need to remove, because auction continue, the auction item can't change.
+	[Authorize]
 	[HttpPut("{id}")]
 	public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
 	{
@@ -103,7 +105,10 @@ public class AuctionsController : ControllerBase
 			return NotFound();
 		}
 
-		// TODO: check seller == username
+		if (auction.Seller != User.Identity.Name)
+		{
+			return Forbid();
+		}
 
 		auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
 		auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
@@ -124,6 +129,7 @@ public class AuctionsController : ControllerBase
 	}
 
 	// NOTE: Delete is for admin user, because the client may want to revert their auction.
+	[Authorize]
 	[HttpDelete("{id}")]
 	public async Task<IActionResult> DeleteAuction(Guid id)
 	{
@@ -134,7 +140,10 @@ public class AuctionsController : ControllerBase
 			return NotFound();
 		}
 
-		// TODO: check auction.Seller == username
+		if (auction.Seller != User.Identity.Name)
+		{
+			return Forbid();
+		}
 
 
 		_context.Auctions.Remove(auction);

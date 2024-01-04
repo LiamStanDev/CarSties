@@ -1,35 +1,58 @@
 using AuctionService.Consumer;
 using AuctionService.Data;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// builder.WebHost.UseUrls("http://localhost:7001");
+
 
 builder.Services.AddDbContext<AuctionDbContext>(opt =>
 {
 	opt.UseNpgsql(builder.Configuration["ConnectionStrings:DefaultConnection"]);
-
 });
 
-// 取得現在 App Domain (這個進程 process 下) 下所有的 asmbly
-// AddAutoMapper 會找哪個 class 繼承 Profile
+builder.Services.AddAuthentication(cfg =>
+{
+	cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(cfg =>
+{
+	// Authority means when Application receive JWT, it will 
+	// call the Authority to validate this token.
+	cfg.Authority = builder.Configuration["IdentityServiceUrl"];
+
+	// wheter use HTTPS to communicate with authority, if true
+	// this application will only accept Authority Meta with HTTPS 
+	cfg.RequireHttpsMetadata = false; // because our identity server run on http
+	cfg.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateAudience = false,
+		NameClaimType = "username",
+	};
+});
+
+// Get all assemblies in this App Domain only inside this process 
+// AddAutoMapper will find class which inherited Profile
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-// builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+
 
 builder.Services.AddMassTransit(c =>
 {
 	c.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
 	c.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
 
-	c.UsingRabbitMq((context, cfg) =>
-	{
-		cfg.ConfigureEndpoints(context);
-	});
+	c.UsingRabbitMq(
+		(context, cfg) =>
+		{
+			cfg.ConfigureEndpoints(context);
+		}
+	);
 
 	// 添加 OutBox 用來確保 Consistency
 	c.AddEntityFrameworkOutbox<AuctionDbContext>(o =>
@@ -43,8 +66,7 @@ builder.Services.AddMassTransit(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-// if (app.Environment.IsDevelopment()) { }
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -53,7 +75,6 @@ using (var scope = app.Services.CreateScope())
 {
 	try
 	{
-
 		var context = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
 
 		await DbInitializer.InitializeAsync(context);

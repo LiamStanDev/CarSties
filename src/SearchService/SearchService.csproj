@@ -1,22 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.4-develop.1638" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.0" />
-    <PackageReference Include="MongoDB.Entities" Version="23.0.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1"></PackageReference>
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.4-develop.1638"></PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.0"></PackageReference>
+    <PackageReference Include="MongoDB.Entities" Version="23.0.1"></PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"></PackageReference>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\Contracts\Contracts.csproj" />
+    <ProjectReference Include="..\Contracts\Contracts.csproj"></ProjectReference>
   </ItemGroup>
-
 </Project>
