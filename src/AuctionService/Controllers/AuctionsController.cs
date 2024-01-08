@@ -68,12 +68,24 @@ public class AuctionsController : ControllerBase
 		var newAuction = _mapper.Map<Auction>(createAuctionDto);
 
 		newAuction.Seller = User.Identity.Name;
+
+		// EntityFramework 會實體追蹤，會直接更新 Id
 		await _context.Auctions.AddAsync(newAuction);
 
 		var newAuctionDto = _mapper.Map<AuctionDto>(newAuction);
+		// 爲什麼要將 Publish 放在 SaveChage 前面？ 因爲我們使用 OutBox，當 RabbitMQ
+		// 失效，我們會在 QutBox 添加該 Message，跟其他 EFCore 操作一樣都還沒有寫入數
+		// 據庫中，在 SaveChage 之後才會寫入，也就是說在 SaveChage 前面都是同一個 
+		// transaction。
+		// Outbox 的主要思想是將要發佈的訊息保存在數據庫中，並在數據庫事務成功提交後再
+		// 將它們發佈到消息總線。以下是 Outbox 的一般流程：
+		// 應用程序執行一個操作，例如保存一個新的數據庫記錄。此操作使用 Outbox 將要發佈的訊
+		// 息保存到特殊的 Outbox 數據表中，同時在數據庫事務中記錄此操作。數據庫事務成功提交
+		// 後，Outbox 會檢查 Outbox 數據表，並將保存的訊息發佈到消息總線。如果訊息發佈成功，
+		// 則 Outbox 會將相關的 Outbox 記錄標記為已處理。如果訊息發佈失敗，Outbox 可以選擇重
+		// 試操作，直到成功為止。
 		await _publishEndpoint.Publish<AuctionCreated>(_mapper.Map<AuctionCreated>(newAuctionDto));
 
-		// EntityFramework 會實體追蹤，會直接更新 Id
 		var result = await _context.SaveChangesAsync() > 0;
 
 
