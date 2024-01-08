@@ -31,6 +31,14 @@ internal static class HostingExtensions
 				options.Events.RaiseFailureEvents = true;
 				options.Events.RaiseSuccessEvents = true;
 
+				// 這邊若使用 Development 的話，IssuerUri 默認爲 localhost:5000
+				// 因爲在 Properties/launchSettings.json 設定的
+				// 但在 docker 環境中這樣不行。需要手動設置
+				if (builder.Environment.IsEnvironment("Docker"))
+				{
+					options.IssuerUri = "identity-svc";
+				}
+
 				// see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
 				// options.EmitStaticAudienceClaim = true;
 			})

@@ -50,11 +50,18 @@ builder.Services.AddMassTransit(c =>
 	c.UsingRabbitMq(
 		(context, cfg) =>
 		{
+			cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", host =>
+					{
+						// GetValue can set default value
+						host.Username(builder.Configuration.GetValue("RabbitMQ:Username", "guest"));
+						host.Password(builder.Configuration.GetValue("RabbitMQ:Password", "guest"));
+					});
 			cfg.ConfigureEndpoints(context);
 		}
 	);
 
 	// 添加 OutBox 用來確保 Consistency
+	// 要使用 Masstransit.EntityframworeCore package
 	c.AddEntityFrameworkOutbox<AuctionDbContext>(o =>
 	{
 		o.UsePostgres();
