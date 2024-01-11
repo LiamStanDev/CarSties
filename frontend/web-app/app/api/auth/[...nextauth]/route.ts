@@ -7,6 +7,7 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     DuendeIDS6Provider({
+      // this need to match Config.cs RedirectUris
       id: "id-server",
       clientId: "nextApp",
       clientSecret: "secret",
