@@ -16,7 +16,7 @@ const Navbar = async () => {
     >
       <Logo />
       <Search />
-      {user ? <UserAction /> : <LoginButton />}
+      {user ? <UserAction user={user} /> : <LoginButton />}
     </header>
   );
 };
