@@ -20,6 +20,26 @@ export const authOptions: NextAuthOptions = {
       idToken: true, // because Config.cs AlwaysIncludeUserClaimsInIdToken
     }),
   ],
+
+  callbacks: {
+    async jwt({ token, profile /*, user, account */ }) {
+      console.log({ token, profile /*, account, user*/ });
+
+      if (profile) {
+        token.username = profile.username;
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (token) {
+        session.user.username = token.username;
+      }
+
+      return session;
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);
