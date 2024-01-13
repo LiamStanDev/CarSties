@@ -16,7 +16,7 @@ RUN dotnet restore CarSties.sln
 COPY src/SearchService src/SearchService
 COPY src/Contracts src/Contracts
 WORKDIR /app/src/SearchService
-RUN dotnet publish -c Debug -o /app/src/out
+RUN dotnet publish -c Release -o /app/src/out
 
 # build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

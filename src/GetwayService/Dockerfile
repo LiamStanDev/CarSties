@@ -15,7 +15,7 @@ RUN dotnet restore CarSties.sln
 
 COPY src/GetwayService src/GetwayService
 WORKDIR /app/src/GetwayService
-RUN dotnet publish -c Debug -o /app/src/out
+RUN dotnet publish -c Release -o /app/src/out
 
 # build run time image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

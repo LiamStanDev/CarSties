@@ -67,7 +67,7 @@ services:
       ASPNETCORE_URLS: http://+:80 
       RabbitMQ__Host: rabbitmq
       ConnectionStrings__MongoDBConnection: "mongodb://root:mongopw@mongodb"
-      AuctionSvcUrl: "http://auction-svc:80" # NOTE: the port need to use inner port not outer port
+      AuctionSvcUrl: "http://auction-svc:7001/"
     ports:
       - 7002:80
     depends_on:

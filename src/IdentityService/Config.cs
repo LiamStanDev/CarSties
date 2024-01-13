@@ -37,13 +37,10 @@ public static class Config
 				ClientSecrets = {new Secret("secret".Sha256())},
 				AllowedGrantTypes = GrantTypes.CodeAndClientCredentials,
 				RequirePkce = false,
-                // this need to match front end 
-                // this uris is used for send back access token
-				RedirectUris = {"http://localhost:3000/api/auth/callback/id-server"},
+				RedirectUris = {"http://localhost:3000/aip/auth/callback/id-server"},
 				AllowOfflineAccess = true,
 				AllowedScopes = {"openid", "profile", "auctionApp"},
-				AccessTokenLifetime = 3600 * 24 * 30, // one month
-                AlwaysIncludeUserClaimsInIdToken = true // if you use openID connection, you will get client information.
+				AccessTokenLifetime = 3600 * 24 * 30 // one month
 			}
 		};
 }
