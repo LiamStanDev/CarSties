@@ -9,7 +9,7 @@ type Props = {
 
 const EditButton = ({ id }: Props) => {
   return (
-    <Button outline>
+    <Button>
       <Link href={`/auctions/update/${id}`}>Update Auction</Link>
     </Button>
   );
