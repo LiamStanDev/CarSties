@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import DateInput from "../components/DateInput";
 import { createAuction } from "../actions/auctionActions";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const AuctionForm = () => {
   const router = useRouter();
@@ -21,10 +22,11 @@ const AuctionForm = () => {
     try {
       const res = await createAuction(data);
       if (res.error) {
-        throw new Error(res.error);
+        throw res.error;
       }
       router.push(`/auctions/details/${res.id}`);
-    } catch (error) {
+    } catch (error: any) {
+      toast.error(error.status + " " + error.message);
       console.log(error);
     }
   };
@@ -57,6 +59,7 @@ const AuctionForm = () => {
         <Input
           label="Year"
           name="year"
+          type="number"
           control={control}
           rules={{ required: "Year is require" }}
         />
