@@ -10,11 +10,14 @@ declare module "next-auth" {
   interface Session {
     user: {
       /** The user's postal address. */
-      username: string;
     } & DefaultSession["user"];
   }
 
   interface Profile {
+    username: string;
+  }
+
+  interface User {
     username: string;
   }
 }
