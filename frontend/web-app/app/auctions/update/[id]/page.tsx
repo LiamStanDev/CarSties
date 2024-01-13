@@ -1,11 +1,24 @@
-const Update = ({
+import Heading from "@/app/components/Heading";
+import AuctionForm from "../../AuctionForm";
+import { getDetailedViewData } from "@/app/actions/auctionActions";
+
+const Update = async ({
   params,
 }: {
   params: {
     id: string;
   };
 }) => {
-  return <div>Update for {params.id}</div>;
+  const data = await getDetailedViewData(params.id);
+  return (
+    <div className="mx-auto max-w-[75%] shadow-lg p-10 bg-white rounded-lg">
+      <Heading
+        title="Update your auction"
+        subtitle="Please update the details of your car"
+      />
+      <AuctionForm auction={data} />
+    </div>
+  );
 };
 
 export default Update;
