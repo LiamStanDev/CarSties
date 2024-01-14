@@ -22,8 +22,8 @@ const initialState: State = {
   pageNumber: 1,
   pageSize: 12,
   pageCount: 1,
-  searchTerm: "",
-  searchValue: "",
+  searchValue: "", // store search term on change
+  searchTerm: "", // this will send to backend
   orderBy: "make",
   filterBy: "live",
   seller: undefined,
