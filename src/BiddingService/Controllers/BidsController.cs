@@ -1,6 +1,8 @@
 using AutoMapper;
 using BiddingService.DTOs;
 using BiddingService.Entities;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Entities;
@@ -12,10 +14,12 @@ namespace BiddingService.Controllers;
 public class BidsController : ControllerBase
 {
 	private readonly IMapper _mapper;
+	private readonly IPublishEndpoint _publishEndpoint;
 
-	public BidsController(IMapper mapper)
+	public BidsController(IMapper mapper, IPublishEndpoint publishEndpoint)
 	{
 		_mapper = mapper;
+		_publishEndpoint = publishEndpoint;
 	}
 
 	[Authorize]
@@ -69,6 +73,11 @@ public class BidsController : ControllerBase
 
 
 		await DB.SaveAsync(bid);
+
+		// we're not worry about the transaction, because this only 
+		// update for auction service currentHighBid. This property
+		// is update frequently, so we don't need to ensure synchronize.
+		await _publishEndpoint.Publish(_mapper.Map<BidPlaced>(bid));
 
 		return Ok(_mapper.Map<BidDto>(bid));
 	}
