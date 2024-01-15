@@ -3,7 +3,7 @@ using AuctionService.Entities;
 using Contracts;
 using MassTransit;
 
-namespace AuctionService.Consumer;
+namespace AuctionService.Consumers;
 
 public class AuctionFinishedConsumer : IConsumer<AuctionFinished>
 {

@@ -1,4 +1,4 @@
-using AuctionService.Consumer;
+using AuctionService.Consumers;
 using AuctionService.Data;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
