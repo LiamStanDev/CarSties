@@ -1,3 +1,4 @@
+using BiddingService.Consumers;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +29,7 @@ builder.Services.AddAuthentication(cfg =>
 
 builder.Services.AddMassTransit(c =>
 {
+	c.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
 	c.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("bids", false));
 	c.UsingRabbitMq(
 		(context, cfg) =>
