@@ -15,7 +15,6 @@ builder.Services.AddAuthentication(cfg =>
 {
 	cfg.Authority = builder.Configuration["IdentityServiceUrl"];
 
-
 	cfg.RequireHttpsMetadata = false; // because our identity server run on http
 	cfg.TokenValidationParameters = new TokenValidationParameters
 	{
