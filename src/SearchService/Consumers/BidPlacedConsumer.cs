@@ -5,7 +5,7 @@ using SearchService.Entities;
 
 namespace SearchService.Consumers;
 
-public class BidPlaceConsumer : IConsumer<BidPlaced>
+public class BidPlacedConsumer : IConsumer<BidPlaced>
 {
 	public async Task Consume(ConsumeContext<BidPlaced> context)
 	{
