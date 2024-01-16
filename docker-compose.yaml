@@ -116,6 +116,21 @@ services:
       auction-svc:
         condition: service_started
 
+  notify-svc:
+    image: liamstan/notify-svc:latest
+    build:
+      context: .
+      dockerfile: src/NotificationService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      RabbitMQ__Host: rabbitmq
+    ports:
+      - 7004:80
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
   getway-svc:
     image: liamstan/getway-svc:latest
     build:
