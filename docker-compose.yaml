@@ -1,10 +1,10 @@
 services:
-  postgres: 
+  postgres:
     image: postgres:latest
     environment:
       - POSTGRES_USER=appuser
       - POSTGRES_PASSWORD=postgrespw
-    ports: 
+    ports:
       - 5432:5432
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "appuser", "-d", "auctions"]
@@ -25,12 +25,12 @@ services:
     #    interval: 10s
     #    timeout: 5s
     #    retries: 3
-  
+
   rabbitmq:
     image: rabbitmq:3.11.28-management-alpine
     ports:
-    - 5672:5672
-    - 15672:15672 # for the management tools port
+      - 5672:5672
+      - 15672:15672 # for the management tools port
     healthcheck:
       test: ["CMD", "rabbitmqctl", "list_users"]
       interval: 5s
@@ -44,18 +44,21 @@ services:
       dockerfile: src/AuctionService/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:80 
       RabbitMQ__Host: rabbitmq
       ConnectionStrings__DefaultConnection: "User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=auctions;"
-      IdentityServiceUrl: "http://identity-svc"
+      IdentityServiceUrl: "http://identity-svc:80"
+      Kestrel__Endpoints__Grpc__Protocols: "Http2"
+      Kestrel__Endpoints__Grpc__Url: "http://+:7777"
+      Kestrel__Endpoints__WebApi__Protocols: "Http1"
+      Kestrel__Endpoints__WebApi__Url: "http://+:80"
     ports:
       - 7001:80
+      - 7777:7777
     depends_on:
       postgres:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-
 
   search-svc:
     image: liamstan/search-svc:latest
@@ -64,7 +67,7 @@ services:
       dockerfile: src/SearchService/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:80 
+      ASPNETCORE_URLS: http://+:80
       RabbitMQ__Host: rabbitmq
       ConnectionStrings__MongoDBConnection: "mongodb://root:mongopw@mongodb"
       AuctionSvcUrl: "http://auction-svc:80" # NOTE: the port need to use inner port not outer port
@@ -76,7 +79,6 @@ services:
       rabbitmq:
         condition: service_healthy
 
-
   identity-svc:
     image: liamstan/identity-svc:latest
     build:
@@ -84,13 +86,35 @@ services:
       dockerfile: src/IdentityService/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
-      ASPNETCORE_URLS: http://+:80 
+      ASPNETCORE_URLS: http://+:80
       ConnectionStrings__DefaultConnection: "User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=identity;"
     ports:
       - 5000:80
     depends_on:
       postgres:
         condition: service_healthy
+
+  bid-svc:
+    image: liamstan/bid-svc:latest
+    build:
+      context: .
+      dockerfile: src/BiddingService/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      RabbitMQ__Host: rabbitmq
+      ConnectionStrings__BidDbConnection: "mongodb://root:mongopw@mongodb"
+      IdentityServiceUrl: "http://identity-svc:80"
+      GrpcAuction: "http://auction-svc:7777"
+    ports:
+      - 7003:80
+    depends_on:
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+      auction-svc:
+        condition: service_started
 
   getway-svc:
     image: liamstan/getway-svc:latest
@@ -99,6 +123,6 @@ services:
       dockerfile: src/GetwayService/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
-      ASPNETCORE_URLS: http://+:80 
+      ASPNETCORE_URLS: http://+:80
     ports:
       - 6001:80
