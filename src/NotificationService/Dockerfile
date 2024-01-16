@@ -15,9 +15,9 @@ COPY src/NotificationService/NotificationService.csproj src/NotificationService/
 # Restore package deps
 RUN dotnet restore CarSties.sln
 
-COPY src/IdentityService src/IdentityService
+COPY src/NotificationService src/NotificationService
 COPY src/Contracts src/Contracts
-WORKDIR /app/src/IdentityService
+WORKDIR /app/src/NotificationService
 RUN dotnet publish -c Debug -o /app/src/out
 
 # build run time image
@@ -28,4 +28,4 @@ COPY --from=build /app/src/out .
 # set listening in 80 port, because default port is 8080 in 
 # mcr.microsoft.com/dotnet/aspnet:8.0 image
 ENV ASPNETCORE_URLS=http://+:80 
-ENTRYPOINT [ "dotnet", "IdentityService.dll" ]
+ENTRYPOINT [ "dotnet", "NotificationService.dll" ]
