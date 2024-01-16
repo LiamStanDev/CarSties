@@ -23,6 +23,17 @@ builder.Services.AddAuthentication(cfg =>
 	};
 });
 
+builder.Services.AddCors(c =>
+{
+	c.AddPolicy("policyForSignalIR", p =>
+	{
+		p.AllowAnyHeader()
+			.AllowAnyMethod()
+			.AllowCredentials()
+			.WithOrigins(builder.Configuration["ClientApp"]);
+	});
+});
+
 var app = builder.Build();
 
 app.MapReverseProxy();
