@@ -1,4 +1,3 @@
-"use client";
 import TryLogin from "./TryLogin";
 
 const Page = () => {

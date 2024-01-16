@@ -1,7 +1,6 @@
 "use server";
 
 import { Auction, PagedResult } from "@/types";
-import { getTokenWorkaround } from "./authAction";
 import { fetchWrapper } from "../lib/fetchWraaper";
 import { FieldValues } from "react-hook-form";
 import { revalidatePath } from "next/cache";

@@ -14,9 +14,9 @@ COPY src/BiddingService/BiddingService.csproj src/BiddingService/BiddingService.
 # Restore package deps
 RUN dotnet restore CarSties.sln
 
-COPY src/AuctionService src/AuctionService
+COPY src/BiddingService src/BiddingService
 COPY src/Contracts src/Contracts
-WORKDIR /app/src/AuctionService
+WORKDIR /app/src/BiddingService
 RUN dotnet publish -c Debug -o /app/src/out
 
 # build run time image
@@ -27,4 +27,4 @@ COPY --from=build /app/src/out .
 # set listening in 80 port, because default port is 8080 in 
 # mcr.microsoft.com/dotnet/aspnet:8.0 image
 ENV ASPNETCORE_URLS=http://+:80 
-ENTRYPOINT [ "dotnet", "AuctionService.dll" ]
+ENTRYPOINT [ "dotnet", "BiddingService.dll" ]
