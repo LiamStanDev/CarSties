@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "AuctionService";
+
+service GrpcAuction {
+    rpc GetAuction (GetAuctionRequest) returns (GrpcAuctionResponse);
+}
+
+message GetAuctionRequest {
+    // this is not assign 1 to id. `.proto` file need every fields
+    // has identitical field number which need to be non-positive 
+    // int.
+    string id = 1;
+}
+
+message GrpcAuctionModel {
+    string id = 1;
+    string seller = 2;
+    string auctionEnd = 3;
+    int32 reservePrice = 4;
+}
+
+message GrpcAuctionResponse {
+    GrpcAuctionModel auction = 1;
+}
