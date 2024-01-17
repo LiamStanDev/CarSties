@@ -2,12 +2,10 @@ using AuctionService.Data;
 using AuctionService.DTOs;
 using AuctionService.Entities;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AuctionService.Controllers;
 
@@ -15,43 +13,32 @@ namespace AuctionService.Controllers;
 [Route("api/auctions")]
 public class AuctionsController : ControllerBase
 {
-	private readonly AuctionDbContext _context;
+	private readonly IAuctionRepository _repo;
 	private readonly IMapper _mapper;
 	private readonly IPublishEndpoint _publishEndpoint;
 
-	public AuctionsController(AuctionDbContext context, IMapper mapper, IPublishEndpoint publishEndpoint)
+	public AuctionsController(IAuctionRepository repo, IMapper mapper, IPublishEndpoint publishEndpoint)
 	{
-		_context = context;
+		_repo = repo;
 		_mapper = mapper;
 		_publishEndpoint = publishEndpoint;
 	}
 
 
-	/// <summary>
-	/// Return all auctions which update time larger than give date.
-	/// </summary>
+	// <summary>
+	// Return all auctions which update time larger than give date.
+	// </summary>
 	[HttpGet]
 	public async Task<ActionResult<List<AuctionDto>>> GetAllAuctions(string date)
 	{
+		return await _repo.GetAllAuctionsAsync(date);
 
-		var query = _context.Auctions.OrderBy(a => a.Item.Make).AsQueryable();
-
-		if (!string.IsNullOrEmpty(date))
-		{
-			query = query.Where(a => a.UpdatedAt.CompareTo(DateTime.Parse(date).ToUniversalTime()) > 0);
-		}
-
-		// ProjectTo is automapper extension method for not to write include.
-		return await query.ProjectTo<AuctionDto>(_mapper.ConfigurationProvider).ToListAsync();
 	}
 
 	[HttpGet("{id}")]
 	public async Task<ActionResult<AuctionDto>> GetAuctionById(Guid id)
 	{
-		var auction = await _context.Auctions
-			.Include(a => a.Item)
-			.FirstOrDefaultAsync(a => a.Id == id); // FindAsync 無法使用 Queryable, 故沒辦法接在 Include 後
-
+		var auction = await _repo.GetAuctionByIdAsync(id);
 
 		if (auction is null)
 		{
@@ -70,7 +57,7 @@ public class AuctionsController : ControllerBase
 		newAuction.Seller = User.Identity.Name;
 
 		// EntityFramework 會實體追蹤，會直接更新 Id
-		await _context.Auctions.AddAsync(newAuction);
+		await _repo.AddAuctionAsync(newAuction);
 
 		var newAuctionDto = _mapper.Map<AuctionDto>(newAuction);
 		// 爲什麼要將 Publish 放在 SaveChage 前面？ 因爲我們使用 OutBox，當 RabbitMQ
@@ -86,7 +73,7 @@ public class AuctionsController : ControllerBase
 		// 試操作，直到成功為止。
 		await _publishEndpoint.Publish<AuctionCreated>(_mapper.Map<AuctionCreated>(newAuctionDto));
 
-		var result = await _context.SaveChangesAsync() > 0;
+		var result = await _repo.SaveChangesAsync();
 
 
 		if (!result)
@@ -107,29 +94,16 @@ public class AuctionsController : ControllerBase
 	[HttpPut("{id}")]
 	public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
 	{
-		var auction = await _context.Auctions
-			.Include(a => a.Item)
-			.FirstOrDefaultAsync(a => a.Id == id);
+		var auction = await _repo.GetAuctionEntityByIdAsync(id);
 
-		if (auction is null)
-		{
-			return NotFound();
-		}
+		if (auction is null) { return NotFound(); }
+		if (auction.Seller != User.Identity.Name) { return Forbid(); }
 
-		if (auction.Seller != User.Identity.Name)
-		{
-			return Forbid();
-		}
-
-		auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
-		auction.Item.Model = updateAuctionDto.Model ?? auction.Item.Model;
-		auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
-		auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
-		auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage;
+		auction.Update(updateAuctionDto);
 
 		await _publishEndpoint.Publish<AuctionUpdated>(_mapper.Map<AuctionUpdated>(auction));
 
-		var result = await _context.SaveChangesAsync() > 0;
+		var result = await _repo.SaveChangesAsync();
 
 		if (!result)
 		{
@@ -144,7 +118,7 @@ public class AuctionsController : ControllerBase
 	[HttpDelete("{id}")]
 	public async Task<IActionResult> DeleteAuction(Guid id)
 	{
-		var auction = await _context.Auctions.FindAsync(id);
+		var auction = await _repo.GetAuctionEntityByIdAsync(id);
 
 		if (auction is null)
 		{
@@ -157,11 +131,11 @@ public class AuctionsController : ControllerBase
 		}
 
 
-		_context.Auctions.Remove(auction);
+		_repo.RemoveAuction(auction);
 
 		await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
 
-		var result = await _context.SaveChangesAsync() > 0;
+		var result = await _repo.SaveChangesAsync();
 
 		if (!result)
 		{
