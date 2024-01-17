@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using AuctionService.DTOs;
 
 namespace AuctionService.Entities;
 
@@ -17,4 +18,13 @@ public class Auction
 	public Status Status { get; set; }
 	public Item Item { get; set; }
 	public bool HasReservePrice() => ReservePrice > 0;
+
+	public void Update(UpdateAuctionDto updateAuctionDto)
+	{
+		Item.Make = updateAuctionDto.Make ?? Item.Make;
+		Item.Model = updateAuctionDto.Model ?? Item.Model;
+		Item.Color = updateAuctionDto.Color ?? Item.Color;
+		Item.Year = updateAuctionDto.Year ?? Item.Year;
+		Item.Mileage = updateAuctionDto.Mileage ?? Item.Mileage;
+	}
 }
