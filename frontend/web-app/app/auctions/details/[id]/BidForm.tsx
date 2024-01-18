@@ -4,6 +4,7 @@ import { placeBidForAuction } from "@/app/actions/auctionActions";
 import { numberWithCommas } from "@/app/lib/numberWithComma";
 import { useBidStore } from "@/hooks/useBidStore";
 import { FieldValues, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 
 type Props = {
   auctionId: string;
@@ -20,10 +21,18 @@ const BidForm = ({ auctionId, highBid }: Props) => {
   const addBid = useBidStore((state) => state.addBid);
 
   const onSubmit = (data: FieldValues) => {
-    placeBidForAuction(auctionId, data.amount).then((bid) => {
-      addBid(bid);
-      reset();
-    });
+    placeBidForAuction(auctionId, parseInt(data.amount))
+      .then((bid) => {
+        // this is from fetchWrapper's handleResponse
+        if (bid.error) throw bid.error;
+        // NOTE: this can remove because it will be notify by signalR
+        // but when signalR server down, this will cause problem, so
+        // we still live it here. Note addBid method gonna check the
+        // bid to avoid same bid place.
+        addBid(bid);
+        reset();
+      })
+      .catch((err) => toast.error(err.message));
   };
   return (
     <form

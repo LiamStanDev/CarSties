@@ -18,7 +18,9 @@ export default function RootLayout({
       <body>
         <ToasterProvider />
         <Navbar />
-        <main className="container mx-auto px-5 pt-10">{children}</main>
+        <main className="container mx-auto px-5 pt-10">
+          <SignalRProvider user={user}>{children}</SignalRProvider>
+        </main>
       </body>
     </html>
   );

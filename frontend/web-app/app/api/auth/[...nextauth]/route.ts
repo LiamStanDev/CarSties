@@ -23,7 +23,7 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, profile, account }) {
-      console.log({ token, profile /*, account, user*/ });
+      // console.log({ token, profile /*, account, user*/ });
 
       if (profile) {
         token.username = profile.username;
