@@ -1,7 +1,6 @@
-import { useParamsStore } from "@/hooks/useParamsStore";
-import React from "react";
-import Heading from "./Heading";
+import { useParamsStore } from "@/app/hooks/useParamsStore";
 import { Button } from "flowbite-react";
+import Heading from "./Heading";
 
 type Props = {
   title?: string;

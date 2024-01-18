@@ -1,8 +1,7 @@
 "use client";
 
-import { useParamsStore } from "@/hooks/useParamsStore";
+import { useParamsStore } from "@/app/hooks/useParamsStore";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
 import { AiOutlineCar } from "react-icons/ai";
 
 export default function Logo() {

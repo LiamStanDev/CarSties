@@ -1,5 +1,5 @@
 import { numberWithCommas } from "@/app/lib/numberWithComma";
-import { Bid } from "@/types";
+import { Bid } from "@/app/types";
 import { format } from "date-fns";
 
 type Props = {

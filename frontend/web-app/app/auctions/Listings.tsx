@@ -7,9 +7,13 @@ import { getData } from "../actions/auctionActions";
 import Filters from "./Filters";
 import { useParamsStore } from "@/hooks/useParamsStore";
 import qs from "query-string";
-import EmptyFilter from "../components/EmptyFilter";
+import { useEffect, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { useAuctionStore } from "@/hooks/useAuctionStore";
+import { getData } from "../actions/auctionActions";
+import AppPagination from "../components/AppPagination";
+import EmptyFilter from "../components/EmptyFilter";
+import AuctionCard from "./AuctionCard";
+import Filters from "./Filters";
 
 export default function Listings() {
   const [loading, setLoading] = useState(true);
@@ -22,7 +26,7 @@ export default function Listings() {
       filterBy: state.filterBy,
       seller: state.seller,
       winner: state.winner,
-    })),
+    }))
   );
 
   const data = useAuctionStore(
@@ -30,7 +34,7 @@ export default function Listings() {
       auctions: state.auctions,
       pageCount: state.pageCount,
       totalCount: state.totalCount,
-    })),
+    }))
   );
 
   const setData = useAuctionStore((state) => state.setData);

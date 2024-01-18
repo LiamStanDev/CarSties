@@ -1,4 +1,4 @@
-import { Auction, AuctionFinished } from "@/types";
+import { Auction, AuctionFinished } from "@/app/types";
 import Image from "next/image";
 import Link from "next/link";
 import { numberWithCommas } from "../lib/numberWithComma";

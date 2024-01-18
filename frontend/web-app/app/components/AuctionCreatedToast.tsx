@@ -1,4 +1,4 @@
-import { Auction } from "@/types";
+import { Auction } from "@/app/types";
 import Image from "next/image";
 import Link from "next/link";
 type Props = {

@@ -1,4 +1,4 @@
-import { Auction, PagedResult } from "@/types";
+import { Auction, PagedResult } from "@/app/types";
 import { create } from "zustand";
 
 type State = {
@@ -33,7 +33,7 @@ export const useAuctionStore = create<State & Action>((set) => ({
       auctions: state.auctions.map((auction) =>
         auction.id === auctionId
           ? { ...auction, currentHighBid: amount }
-          : auction,
+          : auction
       ),
     }));
   },

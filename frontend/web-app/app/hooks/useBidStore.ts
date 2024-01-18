@@ -1,4 +1,4 @@
-import { Bid } from "@/types";
+import { Bid } from "@/app/types";
 import { create } from "zustand";
 
 type State = {

@@ -1,13 +1,13 @@
 "use client";
 
+import { useParamsStore } from "@/app/hooks/useParamsStore";
 import { Dropdown, DropdownDivider } from "flowbite-react";
 import { User } from "next-auth";
-import Link from "next/link";
-import { HiUser, HiCog } from "react-icons/hi";
-import { AiFillCar, AiFillTrophy, AiOutlineLogout } from "react-icons/ai";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useParamsStore } from "@/hooks/useParamsStore";
+import { AiFillCar, AiFillTrophy, AiOutlineLogout } from "react-icons/ai";
+import { HiCog, HiUser } from "react-icons/hi";
 
 type Props = {
   user: User;
