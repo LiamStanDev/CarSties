@@ -24,7 +24,12 @@ const BidList = ({ auction, user }: Props) => {
   const setBid = useBidStore((state) => state.setBid);
 
   const highBid = bids.reduce(
-    (prev, current) => (prev > current.amount ? prev : current.amount),
+    (prev, current) =>
+      prev > current.amount
+        ? prev
+        : current.bidStatus.includes("Accepted")
+          ? current.amount
+          : prev,
     0,
   );
 
