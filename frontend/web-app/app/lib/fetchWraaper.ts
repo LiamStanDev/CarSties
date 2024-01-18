@@ -1,6 +1,6 @@
 import { getTokenWorkaround } from "../actions/authAction";
 
-const baseUrl = "http://localhost:6001/";
+const baseUrl = process.env.API_URL;
 
 const handleResponse = async (response: Response) => {
   const text = await response.text(); // the response body is not always json, so I use text

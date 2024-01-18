@@ -1,14 +1,14 @@
 "use client";
 
-import { useAuctionStore } from "@/hooks/useAuctionStore";
-import { useBidStore } from "@/hooks/useBidStore";
-import { Auction, AuctionFinished, Bid } from "@/types";
+import { useAuctionStore } from "@/app/hooks/useAuctionStore";
+import { useBidStore } from "@/app/hooks/useBidStore";
+import { Auction, AuctionFinished, Bid } from "@/app/types";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { User } from "next-auth";
 import { ReactNode, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import AuctionCreatedToast from "../components/AuctionCreatedToast";
 import { getDetailedViewData } from "../actions/auctionActions";
+import AuctionCreatedToast from "../components/AuctionCreatedToast";
 import AuctionFinishedToast from "../components/AuctionFinishedToast";
 
 type Props = {
@@ -23,7 +23,7 @@ const SignalRProvider = ({ children, user }: Props) => {
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:6001/notifications")
+      .withUrl(process.env.NEXT_PUBLIC_NOTIFY_URL!)
       .withAutomaticReconnect()
       .build();
 
