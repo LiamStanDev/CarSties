@@ -1,8 +1,5 @@
 "use client";
 
-import { useAuctionStore } from "@/app/hooks/useAuctionStore";
-import { useBidStore } from "@/app/hooks/useBidStore";
-import { Auction, AuctionFinished, Bid } from "@/app/types";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { User } from "next-auth";
 import { ReactNode, useEffect, useState } from "react";
@@ -10,6 +7,9 @@ import toast from "react-hot-toast";
 import { getDetailedViewData } from "../actions/auctionActions";
 import AuctionCreatedToast from "../components/AuctionCreatedToast";
 import AuctionFinishedToast from "../components/AuctionFinishedToast";
+import { useAuctionStore } from "@/hooks/useAuctionStore";
+import { useBidStore } from "@/hooks/useBidStore";
+import { Auction, AuctionFinished, Bid } from "@/types";
 
 type Props = {
   children: ReactNode;

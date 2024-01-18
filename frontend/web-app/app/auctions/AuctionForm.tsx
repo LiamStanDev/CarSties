@@ -30,7 +30,7 @@ const AuctionForm = ({ auction }: Props) => {
     try {
       let id = "";
       let res;
-      if (pathname === "auctions/create") {
+      if (pathname === "/auctions/create") {
         res = await createAuction(data);
         id = res.id;
       } else {
