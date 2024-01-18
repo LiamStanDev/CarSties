@@ -45,3 +45,10 @@ export const deleteAuction = async (id: string) => {
 export const getBidsForAuction = async (id: string): Promise<Bid[]> => {
   return await fetchWrapper.get(`bids/${id}`);
 };
+
+export const placeBidForAuction = async (auctionId: string, amount: number) => {
+  return await fetchWrapper.post(
+    `bids?auctionId=${auctionId}&amount=${amount}`,
+    {},
+  );
+};
