@@ -11,6 +11,9 @@ dependencies:
   '@types/react-datepicker':
     specifier: ^4.19.5
     version: 4.19.5(react-dom@18.2.0)(react@18.2.0)
+  date-fns:
+    specifier: ^3.2.0
+    version: 3.2.0
   eslint-plugin-react:
     specifier: ^7.33.2
     version: 7.33.2(eslint@8.56.0)
@@ -1764,6 +1767,10 @@ packages:
     engines: {node: '>=0.11'}
     dependencies:
       '@babel/runtime': 7.23.8
+    dev: false
+
+  /date-fns@3.2.0:
+    resolution: {integrity: sha512-E4KWKavANzeuusPi0jUjpuI22SURAznGkx7eZV+4i6x2A+IZxAMcajgkvuDAU1bg40+xuhW1zRdVIIM/4khuIg==}
     dev: false
 
   /debounce@1.2.1:

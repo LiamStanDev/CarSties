@@ -13,7 +13,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useAuctionStore } from "@/hooks/useAuctionStore";
 
 export default function Listings() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const params = useParamsStore(
     useShallow((state) => ({
       pageNumber: state.pageNumber,
@@ -44,7 +44,6 @@ export default function Listings() {
   }
 
   useEffect(() => {
-    setLoading(true);
     getData(url)
       .then((data) => {
         setData(data);
