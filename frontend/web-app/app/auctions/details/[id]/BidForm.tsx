@@ -21,6 +21,12 @@ const BidForm = ({ auctionId, highBid }: Props) => {
   const addBid = useBidStore((state) => state.addBid);
 
   const onSubmit = (data: FieldValues) => {
+    if (parseInt(data.amount) <= highBid) {
+      reset();
+      return toast.error(
+        "Bid must be at least $" + numberWithCommas(highBid + 1),
+      );
+    }
     placeBidForAuction(auctionId, parseInt(data.amount))
       .then((bid) => {
         // this is from fetchWrapper's handleResponse
