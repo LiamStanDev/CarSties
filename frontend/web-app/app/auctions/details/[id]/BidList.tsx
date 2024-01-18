@@ -2,7 +2,6 @@
 
 import { getBidsForAuction } from "@/app/actions/auctionActions";
 import Heading from "@/app/components/Heading";
-import { fetchWrapper } from "@/app/lib/fetchWraaper";
 import { useBidStore } from "@/hooks/useBidStore";
 import { Auction } from "@/types";
 import { User } from "next-auth";
