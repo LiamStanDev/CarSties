@@ -4,6 +4,7 @@ using Polly.Extensions.Http;
 using SearchService.Consumers;
 using SearchService.Data;
 using SearchService.Service;
+using ZstdSharp.Unsafe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,11 @@ builder.Services.AddMassTransit(c =>
 	c.UsingRabbitMq(
 		(context, cfg) =>
 		{
+			cfg.UseMessageRetry(r =>
+			{
+				r.Handle<RabbitMqConnectionException>();
+				r.Interval(5, TimeSpan.FromSeconds(10));
+			});
 			cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", host =>
 					{
 						host.Username(builder.Configuration.GetValue("RabbitMQ:Username", "guest"));
@@ -64,15 +70,9 @@ app.MapControllers();
 /// 因為 lifetime 為 Application`Started` 。
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
-	try
-	{
-		await DbInitializer.Initialize(app);
-	}
-	catch (Exception ex)
-	{
-		var logger = app.Services.GetRequiredService<ILogger<Program>>();
-		logger.LogError(ex, "Problem Initializing MongoDB");
-	}
+	await Policy.Handle<TimeoutException>()
+		.WaitAndRetryAsync(5, _ => TimeSpan.FromSeconds(10))
+		.ExecuteAndCaptureAsync(async () => await DbInitializer.Initialize(app));
 });
 
 app.Run();

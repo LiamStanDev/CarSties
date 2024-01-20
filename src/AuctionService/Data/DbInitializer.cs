@@ -6,8 +6,10 @@ namespace AuctionService.Data;
 public class DbInitializer
 {
 
-    public static async Task InitializeAsync(AuctionDbContext context)
+    public static async Task InitializeAsync(WebApplication app)
     {
+        using var scope = app.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AuctionDbContext>();
 
         await context.Database.MigrateAsync();
         if (context.Auctions.Any())

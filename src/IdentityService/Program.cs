@@ -1,4 +1,6 @@
 using IdentityService;
+using Npgsql;
+using Polly;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateBootstrapLogger();
@@ -20,7 +22,10 @@ try
 
     var app = builder.ConfigureServices().ConfigurePipeline();
 
-    SeedData.EnsureSeedData(app);
+    var retryPolicy = Policy
+        .Handle<NpgsqlException>()
+        .WaitAndRetry(5, _ => TimeSpan.FromSeconds(10))
+        .ExecuteAndCapture(() => SeedData.EnsureSeedData(app));
 
     app.Run();
 }
