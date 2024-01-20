@@ -6,7 +6,6 @@ import { signIn } from "next-auth/react";
 const LoginButton = () => {
   return (
     <Button
-      outline
       onClick={() =>
         // prompt login means always need to login event, the session
         // is still alive in browser
