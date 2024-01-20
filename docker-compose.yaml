@@ -1,3 +1,10 @@
+networks:
+  carstiesApp:
+    # IP address manager
+    ipam: 
+      config: 
+        - subnet: 10.5.0.0/16
+
 services:
   postgres:
     image: postgres:latest
@@ -6,6 +13,10 @@ services:
       - POSTGRES_PASSWORD=postgrespw
     ports:
       - 5432:5432
+    volumes:
+      - /var/lib/posgresql/data
+    networks:
+      carstiesApp:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "appuser", "-d", "auctions"]
       interval: 5s
@@ -17,20 +28,20 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=mongopw
+    volumes:
+      - /var/lib/mongodb/data
+    networks:
+      carstiesApp:
     ports:
       - 27017:27017
-    # because mongo command is not in /usr/bin
-    # healthcheck:
-    #    test: ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })"]
-    #    interval: 10s
-    #    timeout: 5s
-    #    retries: 3
 
   rabbitmq:
     image: rabbitmq:3.11.28-management-alpine
     ports:
       - 5672:5672
       - 15672:15672 # for the management tools port
+    networks:
+      carstiesApp:
     healthcheck:
       test: ["CMD", "rabbitmqctl", "list_users"]
       interval: 5s
@@ -43,17 +54,19 @@ services:
       context: .
       dockerfile: src/AuctionService/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      RabbitMQ__Host: rabbitmq
-      ConnectionStrings__DefaultConnection: "User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=auctions;"
-      IdentityServiceUrl: "http://identity-svc:80"
-      Kestrel__Endpoints__Grpc__Protocols: "Http2"
-      Kestrel__Endpoints__Grpc__Url: "http://+:7777"
-      Kestrel__Endpoints__WebApi__Protocols: "Http1"
-      Kestrel__Endpoints__WebApi__Url: "http://+:80"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RabbitMQ__Host=rabbitmq
+      - ConnectionStrings__DefaultConnection=User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=auctions;
+      - IdentityServiceUrl=http://identity-svc  # http use default 80 port
+      - Kestrel__Endpoints__Grpc__Protocols=Http2
+      - Kestrel__Endpoints__Grpc__Url=http://+:7777
+      - Kestrel__Endpoints__WebApi__Protocols=Http1
+      - Kestrel__Endpoints__WebApi__Url=http://+:80
     ports:
       - 7001:80
       - 7777:7777
+    networks:
+      carstiesApp:
     depends_on:
       postgres:
         condition: service_healthy
@@ -66,11 +79,13 @@ services:
       context: .
       dockerfile: src/SearchService/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:80
-      RabbitMQ__Host: rabbitmq
-      ConnectionStrings__MongoDBConnection: "mongodb://root:mongopw@mongodb"
-      AuctionSvcUrl: "http://auction-svc:80" # NOTE: the port need to use inner port not outer port
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+      - ConnectionStrings__MongoDBConnection=mongodb://root:mongopw@mongodb
+      - AuctionSvcUrl=http://auction-svc
+    networks:
+      carstiesApp:
     ports:
       - 7002:80
     depends_on:
@@ -85,11 +100,14 @@ services:
       context: .
       dockerfile: src/IdentityService/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Docker
-      ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=identity;"
-    ports:
-      - 5000:80
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=identity;
+      - VIRTUAL_HOST=id.carsties.com
+      - ClientApp=http://app.carsties.com
+    networks:
+      carstiesApp:
+        ipv4_address: 10.5.0.200
     depends_on:
       postgres:
         condition: service_healthy
@@ -100,14 +118,16 @@ services:
       context: .
       dockerfile: src/BiddingService/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:80
-      RabbitMQ__Host: rabbitmq
-      ConnectionStrings__BidDbConnection: "mongodb://root:mongopw@mongodb"
-      IdentityServiceUrl: "http://identity-svc:80"
-      GrpcAuction: "http://auction-svc:7777"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+      - ConnectionStrings__BidDbConnection=mongodb://root:mongopw@mongodb
+      - IdentityServiceUrl=http://identity-svc
+      - GrpcAuction=http://auction-svc:7777
     ports:
       - 7003:80
+    networks:
+      carstiesApp:
     depends_on:
       mongodb:
         condition: service_started
@@ -122,22 +142,71 @@ services:
       context: .
       dockerfile: src/NotificationService/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:80
-      RabbitMQ__Host: rabbitmq
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMQ__Host=rabbitmq
+    networks:
+      carstiesApp:
     ports:
       - 7004:80
     depends_on:
       rabbitmq:
         condition: service_healthy
 
-  getway-svc:
-    image: liamstan/getway-svc:latest
+  gateway-svc:
+    image: liamstan/gateway-svc:latest
     build:
       context: .
       dockerfile: src/GetwayService/Dockerfile
     environment:
-      ASPNETCORE_ENVIRONMENT: Docker
-      ASPNETCORE_URLS: http://+:80
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      # nginx proxy
+      - VIRTUAL_HOST=api.carsties.com
+      - ClientApp=http://app.carsties.com
+    networks:
+      carstiesApp:
+
+  web-app:
+    image: liamstan/web-app:latest
+    build:
+      context: .
+      dockerfile: frontend/web-app/Dockerfile
+    volumes:
+      - /var/lib/web/data
+    networks:
+      carstiesApp:
+    extra_hosts:
+      # id.carsties.com inside docker will map to 10.5.0.200
+      - id.carsties.com:10.5.0.200
+    expose:
+      - 3000
+    environment:
+      - NEXTAUTH_SECRET=sometingreallyreallysecret
+      # 這邊都要注意 url 都分爲 server side 與 client side
+      - NEXTAUTH_URL=http://app.carsties.com # default server side and client side will use it
+      - NEXTAUTH_URL_INTERNAL=http://web-app:3000 # server side will use it to call back
+      - API_URL=http://gateway-svc/
+      # for browser it will find id.carsties.com, inside docker it will find 10.5.0.200 see extra_hosts
+      - ID_URL=http://id.carsties.com # let browser to go here to login
+      - NEXT_PUBLIC_NOTIFY_URL=http://gateway-svc/notifications # because the component use this env is "use client"
+      # nginx proxy
+      - VIRTUAL_HOST=app.carsties.com
+      - VIRTUAL_PORT=3000
+    depends_on:
+      - auction-svc
+      - gateway-svc
+      - notify-svc
+      - search-svc
+      - bid-svc
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
     ports:
-      - 6001:80
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./devcerts:/etc/nginx/certs
+    networks:
+      carstiesApp:
