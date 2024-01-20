@@ -4,7 +4,7 @@ const baseUrl = process.env.API_URL;
 
 const handleResponse = async (response: Response) => {
   const text = await response.text(); // the response body is not always json, so I use text
-  console.log({ text });
+  // console.log({ text });
 
   // data isn't always JSON type
   let data;
