@@ -16,6 +16,8 @@ const nextConfig = {
       fullUrl: false,
     },
   },
+  // make file more smaller
+  output: "standalone",
 };
 
 module.exports = nextConfig;

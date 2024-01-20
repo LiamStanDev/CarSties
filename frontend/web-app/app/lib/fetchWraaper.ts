@@ -1,17 +1,25 @@
 import { getTokenWorkaround } from "../actions/authAction";
 
-const baseUrl = "http://localhost:6001/";
+const baseUrl = process.env.API_URL;
 
 const handleResponse = async (response: Response) => {
   const text = await response.text(); // the response body is not always json, so I use text
-  const data = text && JSON.parse(text);
+  // console.log({ text });
+
+  // data isn't always JSON type
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch (error) {
+    data = text;
+  }
 
   if (response.ok) {
     return data || response.statusText;
   } else {
     const error = {
       status: response.status,
-      message: response.statusText,
+      message: typeof data === "string" ? data : response.statusText,
     };
     return { error };
   }

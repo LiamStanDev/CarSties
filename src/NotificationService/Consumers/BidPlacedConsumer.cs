@@ -18,6 +18,8 @@ public class BidPlacedConsumer : IConsumer<BidPlaced>
 	{
 		Console.WriteLine("--> Bid placed message received");
 
+		// the first param stands for method name which client can listen
+		// on.
 		await _hubContext.Clients.All.SendAsync("BidPlaced", context.Message);
 	}
 }

@@ -1,8 +1,8 @@
 import { User, getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
 import { getToken } from "next-auth/jwt";
 import { headers, cookies } from "next/headers"; // this should be correct
 import { NextApiRequest } from "next";
+import { authOptions } from "../api/auth/[...nextauth]/routeOptios";
 
 export const getSession = async () => {
   return await getServerSession(authOptions);
