@@ -57,7 +57,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMQ__Host=rabbitmq
       - ConnectionStrings__DefaultConnection=User ID=appuser;Password=postgrespw;Host=postgres;Port=5432;Database=auctions;
-      - IdentityServiceUrl=http://identity-svc  # http use default 80 port
+      - IdentityServiceUrl=http://identity-svc
       - Kestrel__Endpoints__Grpc__Protocols=Http2
       - Kestrel__Endpoints__Grpc__Url=http://+:7777
       - Kestrel__Endpoints__WebApi__Protocols=Http1
@@ -67,11 +67,11 @@ services:
       - 7777:7777
     networks:
       carstiesApp:
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+    # depends_on:
+    #   postgres:
+    #     condition: service_healthy
+    #   rabbitmq:
+    #     condition: service_healthy
 
   search-svc:
     image: liamstan/search-svc:latest
@@ -88,11 +88,11 @@ services:
       carstiesApp:
     ports:
       - 7002:80
-    depends_on:
-      mongodb:
-        condition: service_started
-      rabbitmq:
-        condition: service_healthy
+    # depends_on:
+    #   mongodb:
+    #     condition: service_started
+    #   rabbitmq:
+    #     condition: service_healthy
 
   identity-svc:
     image: liamstan/identity-svc:latest
@@ -128,13 +128,13 @@ services:
       - 7003:80
     networks:
       carstiesApp:
-    depends_on:
-      mongodb:
-        condition: service_started
-      rabbitmq:
-        condition: service_healthy
-      auction-svc:
-        condition: service_started
+    # depends_on:
+    #   mongodb:
+    #     condition: service_started
+    #   rabbitmq:
+    #     condition: service_healthy
+    #   auction-svc:
+    #     condition: service_started
 
   notify-svc:
     image: liamstan/notify-svc:latest
@@ -149,9 +149,9 @@ services:
       carstiesApp:
     ports:
       - 7004:80
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+    # depends_on:
+    #   rabbitmq:
+    #     condition: service_healthy
 
   gateway-svc:
     image: liamstan/gateway-svc:latest
@@ -166,8 +166,8 @@ services:
       # nginx proxy
       - VIRTUAL_HOST=api.carsties.com
       - ClientApp=http://app.carsties.com
-    networks:
-      carstiesApp:
+    # networks:
+    #   carstiesApp:
 
   web-app:
     image: liamstan/web-app:latest
@@ -195,12 +195,12 @@ services:
       # nginx proxy
       - VIRTUAL_HOST=app.carsties.com
       - VIRTUAL_PORT=3000
-    depends_on:
-      - auction-svc
-      - gateway-svc
-      - notify-svc
-      - search-svc
-      - bid-svc
+    # depends_on:
+    #   - auction-svc
+    #   - gateway-svc
+    #   - notify-svc
+    #   - search-svc
+    #   - bid-svc
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy

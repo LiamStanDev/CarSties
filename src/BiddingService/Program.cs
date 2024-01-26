@@ -1,60 +1,12 @@
-using BiddingService.Consumers;
-using BiddingService.Services;
-using MassTransit;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using BiddingService.Extensions;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-
-builder.Services.AddAuthentication(cfg =>
-{
-	cfg.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-	cfg.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(cfg =>
-{
-	cfg.Authority = builder.Configuration["IdentityServiceUrl"];
-	cfg.RequireHttpsMetadata = false;
-	cfg.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateAudience = false,
-		NameClaimType = "username"
-	};
-
-});
-
-builder.Services.AddMassTransit(c =>
-{
-	c.AddConsumersFromNamespaceContaining<AuctionCreatedConsumer>();
-	c.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("bids", false));
-	c.UsingRabbitMq(
-		(context, cfg) =>
-		{
-			cfg.UseMessageRetry(r =>
-			{
-				r.Handle<RabbitMqConnectionException>();
-				r.Interval(5, TimeSpan.FromSeconds(10));
-			});
-			cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", host =>
-				{
-					host.Username(builder.Configuration.GetValue("RabbitMQ:Username", "guest"));
-					host.Password(builder.Configuration.GetValue("RabbitMQ:Password", "guest"));
-				});
-			cfg.ConfigureEndpoints(context);
-		}
-	);
-});
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-builder.Services.AddHostedService<CheckAuctionFinished>();
-builder.Services.AddScoped<GrpcAuctionClient>();
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddIdentityServices(builder.Configuration);
 
 var app = builder.Build();
 
