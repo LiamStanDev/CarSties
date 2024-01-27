@@ -2,12 +2,12 @@ name: deploy-identity
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["main"]
-    path: "src/IdentityService/**"
-  pull_request:
-    branches: ["main"]
-    path: "src/IdentityService/**"
+  # push:
+  #   branches: ["main"]
+  #   path: "src/IdentityService/**"
+  # pull_request:
+  #   branches: ["main"]
+  #   path: "src/IdentityService/**"
 
 jobs:
   build:
@@ -28,4 +28,4 @@ jobs:
           context: .
           file: src/IdentityService/Dockerfile
           push: true
-          tags: liamstan/ideneity-svc:latest
+          tags: liamstan/identity-svc:latest
