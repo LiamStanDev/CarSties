@@ -28,4 +28,4 @@ jobs:
           context: .
           file: frontend/web-app/Dockerfile
           push: true
-          tags: liamstan/webapp:latest
+          tags: liamstan/web-app:latest
