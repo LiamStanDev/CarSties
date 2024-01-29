@@ -1,3 +1,4 @@
+using Duende.IdentityServer.Services;
 using IdentityService.Data;
 using IdentityService.Models;
 using IdentityService.Services;
@@ -70,6 +71,16 @@ internal static class HostingExtensions
 
 		app.UseStaticFiles();
 		app.UseRouting();
+
+		if (app.Environment.IsProduction())
+		{
+			app.Use(async (ctx, next) =>
+			{
+				var serverUrl = ctx.RequestServices.GetRequiredService<IServerUrls>();
+				serverUrl.Origin = "https://id.dev-liamstan.site";
+				await next();
+			});
+		}
 		app.UseIdentityServer();
 		app.UseAuthorization();
 

@@ -1,4 +1,4 @@
-FROM node:alpine AS builder
+FROM node:alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -8,9 +8,13 @@ RUN npm install -g pnpm
 ENV NODE_ENV production
 RUN pnpm install
 
+FROM node:alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/web-app ./
 # 取消遙測, 可以增加性能
 ENV NEXT_TELEMETRY_DISABLED 1
+RUN npm install -g pnpm
 RUN pnpm build
 
 # production image, copy all files and run next
