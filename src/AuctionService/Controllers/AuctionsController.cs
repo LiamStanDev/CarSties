@@ -103,7 +103,6 @@ public class AuctionsController : ControllerBase
 		);
 	}
 
-	// NOTE: This feature may need to remove, because auction continue, the auction item can't change.
 	[Authorize]
 	[HttpPut("{id}")]
 	public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)

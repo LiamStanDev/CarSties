@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-svc
+spec:
+  selector:
+    matchLabels:
+      app: gateway-svc
+  template:
+    metadata:
+      labels:
+        app: gateway-svc
+    spec:
+      containers:
+        - name: gateway-svc
+          image: liamstan/gateway-svc:latest
+          # imagePullPolicy: Never # always use local image
+          env:
+            - name: ClientApp
+              value: https://app.carsties.com
+            - name: IdentityServiceUrl
+              value: https://id.dev-liamstan.site
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-clusterip
+spec:
+  type: ClusterIP
+  selector:
+    app: gateway-svc
+  ports:
+    - port: 80
+      targetPort: 80
