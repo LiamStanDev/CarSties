@@ -8,7 +8,7 @@ on:
       - "src/BiddingService/**"
 env:
   REGISTERY_IMAGE: "liamstan/bid-svc"
-  DOCKERFILE: src/BiddingService/Dockerfile
+  DOCKERFILE: "src/BiddingService/Dockerfile"
 
 jobs:
   build:
