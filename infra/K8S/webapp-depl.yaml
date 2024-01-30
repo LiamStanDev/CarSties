@@ -18,7 +18,10 @@ spec:
             - containerPort: 3000
           env:
             - name: NEXTAUTH_SECRET
-              value: somethingreallyreallysecret
+              valueFrom:
+                secretKeyRef:
+                  name: webapp-secret
+                  key: authSecret
             - name: NEXTAUTH_URL
               value: https://app.carsties.com
             - name: API_URL
