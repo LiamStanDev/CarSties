@@ -27,6 +27,7 @@ builder.Services.AddCors(c =>
 {
 	c.AddPolicy("policyForSignalR", p =>
 	{
+		Console.WriteLine(builder.Configuration["ClientApp"]);
 		p.AllowAnyHeader()
 			.AllowAnyMethod()
 			.AllowCredentials()
