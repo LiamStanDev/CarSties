@@ -27,7 +27,6 @@ builder.Services.AddCors(c =>
 {
 	c.AddPolicy("policyForSignalR", p =>
 	{
-		Console.WriteLine(builder.Configuration["ClientApp"]);
 		p.AllowAnyHeader()
 			.AllowAnyMethod()
 			.AllowCredentials()
@@ -38,9 +37,8 @@ builder.Services.AddCors(c =>
 var app = builder.Build();
 app.UseCors();
 
-app.MapReverseProxy();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapReverseProxy();
 app.Run();
