@@ -2,12 +2,14 @@ name: deploy-app
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: ["main"]
-  #   path: "src/IdentityService/**"
-  # pull_request:
-  #   branches: ["main"]
-  #   path: "src/IdentityService/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "src/IdentityService/**"
+
+env:
+  REGISTERY_IMAGE: "liamstan/wab-app"
+  DOCKERFILE: frontend/web-app/Dockerfile
 
 jobs:
   build-auction-svc:
@@ -26,6 +28,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: frontend/web-app/Dockerfile
+          file: ${{ env.DOCKERFILE }}
           push: true
-          tags: liamstan/web-app:latest
+          tags: ${{ env.REGISTERY_IMAGE }}:latest

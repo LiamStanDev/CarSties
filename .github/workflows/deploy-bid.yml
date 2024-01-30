@@ -1,11 +1,14 @@
-name: deploy-identity
+name: deploy-bid
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
     paths:
-      - "src/IdentityService/**"
+      - "src/BiddingService/**"
+env:
+  REGISTERY_IMAGE: "liamstan/bid-svc"
+  DOCKERFILE: src/BiddingService/Dockerfile
 
 jobs:
   build:
@@ -24,6 +27,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: src/IdentityService/Dockerfile
+          file: ${{ env.DOCKERFILE }}
           push: true
-          tags: liamstan/identity-svc:latest
+          tags: ${{ env.REGISTERY_IMAGE }}:latest

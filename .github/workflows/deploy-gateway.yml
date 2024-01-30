@@ -1,18 +1,19 @@
-name: deploy-identity
+name: deploy-gateway
 
 on:
   workflow_dispatch:
   push:
     branches: ["main"]
     paths:
-      - "src/IdentityService/**"
+      - "src/GetwayService/**"
+env:
+  REGISTERY_IMAGE: "liamstan/gateway-svc"
+  DOCKERFILE: src/GetwayService/Dockerfile
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to docker hub
@@ -24,6 +25,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: src/IdentityService/Dockerfile
+          file: ${{ env.DOCKERFILE }}
           push: true
-          tags: liamstan/identity-svc:latest
+          tags: ${{ env.REGISTERY_IMAGE }}:latest
