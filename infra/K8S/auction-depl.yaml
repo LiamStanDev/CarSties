@@ -19,11 +19,20 @@ spec:
             - name: RabbitMQ__Host
               value: rabbit-clusterip
             - name: RabbitMQ__Username
-              value: rabbit
+              valueFrom:
+                secretKeyRef:
+                  name: auction-secret
+                  key: rabbitUn
             - name: RabbitMQ__Password
-              value: rabbit
+              valueFrom:
+                secretKeyRef:
+                  name: auction-secret
+                  key: rabbitPw
             - name: ConnectionStrings__DefaultConnection
-              value: User ID=postgres;Password=postgrespw;Host=postgres-clusterip;Port=5432;Database=auctions;
+              valueFrom:
+                secretKeyRef:
+                  name: auction-secret
+                  key: connString
             - name: IdentityServiceUrl
               value: https://id.dev-liamstan.site
             - name: Kestrel__Endpoints__Grpc__Protocols

@@ -19,11 +19,20 @@ spec:
             - name: RabbitMQ__Host
               value: rabbit-clusterip
             - name: RabbitMQ__Username
-              value: rabbit
+              valueFrom:
+                secretKeyRef:
+                  name: bid-secret
+                  key: rabbitUn
             - name: RabbitMQ__Password
-              value: rabbit
+              valueFrom:
+                secretKeyRef:
+                  name: bid-secret
+                  key: rabbitPw
             - name: ConnectionStrings__BidDbConnection
-              value: mongodb://root:mongopw@mongo-clusterip
+              valueFrom:
+                secretKeyRef:
+                  name: bid-secret
+                  key: connString
             - name: GrpcAuction
               value: http://auction-clusterip:7777
             - name: IdentityServiceUrl
