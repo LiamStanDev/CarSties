@@ -14,7 +14,7 @@ spec:
       containers:
         - name: search-svc
           image: liamstan/search-svc:latest
-          # imagePullPolicy: Never # always use local image
+          imagePullPolicy: Always
           env:
             - name: RabbitMQ__Host
               value: rabbit-clusterip

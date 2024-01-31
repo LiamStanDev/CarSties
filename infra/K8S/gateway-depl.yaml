@@ -14,7 +14,7 @@ spec:
       containers:
         - name: gateway-svc
           image: liamstan/gateway-svc:latest
-          # imagePullPolicy: Never # always use local image
+          imagePullPolicy: Always
           env:
             - name: ClientApp
               value: https://app.carsties.com
