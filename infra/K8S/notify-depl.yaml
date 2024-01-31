@@ -14,7 +14,7 @@ spec:
       containers:
         - name: notify-svc
           image: liamstan/notify-svc:latest
-          # imagePullPolicy: Never # always use local image
+          imagePullPolicy: Always
           env:
             - name: RabbitMQ__Host
               value: rabbit-clusterip
