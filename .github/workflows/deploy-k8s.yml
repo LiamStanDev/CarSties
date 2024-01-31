@@ -1,0 +1,22 @@
+name: deploy-k8s
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "infra/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save carsties-k8s
+      - run: kubectl apply -f infra/K8S && kubectl apply -f infra/prod-k8s

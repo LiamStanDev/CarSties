@@ -9,6 +9,7 @@ on:
 env:
   REGISTERY_IMAGE: "liamstan/notify-svc"
   DOCKERFILE: "src/NotificationService/Dockerfile"
+  DEPLOYMENT_NAME: "notify-svc"
 
 jobs:
   build:
@@ -30,3 +31,11 @@ jobs:
           file: ${{ env.DOCKERFILE }}
           push: true
           tags: ${{ env.REGISTERY_IMAGE }}:latest
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save carsties-k8s
+      - name: Restart k8s deployment
+        run: kubectl rollout restart deployment ${{ env.DEPLOYMENT_NAME }}
