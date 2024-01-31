@@ -12,7 +12,7 @@ env:
   DOCKERFILE: frontend/web-app/Dockerfile
 
 jobs:
-  build-auction-svc:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
