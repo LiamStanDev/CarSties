@@ -5,7 +5,7 @@ on:
   push:
     branches: ["main"]
     paths:
-      - "src/IdentityService/**"
+      - "frontend/web-app/**"
 
 env:
   REGISTERY_IMAGE: "liamstan/wab-app"
