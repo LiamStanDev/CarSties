@@ -1,16 +1,16 @@
 "use client";
 
 import { getBidsForAuction } from "@/app/actions/auctionActions";
+import EmptyFilter from "@/app/components/EmptyFilter";
 import Heading from "@/app/components/Heading";
+import { numberWithCommas } from "@/app/lib/numberWithComma";
 import { useBidStore } from "@/hooks/useBidStore";
 import { Auction } from "@/types";
 import { User } from "next-auth";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import BidItem from "./BidItem";
-import { numberWithCommas } from "@/app/lib/numberWithComma";
-import EmptyFilter from "@/app/components/EmptyFilter";
 import BidForm from "./BidForm";
+import BidItem from "./BidItem";
 
 type Props = {
   auction: Auction;
@@ -27,9 +27,9 @@ const BidList = ({ auction, user }: Props) => {
       prev > current.amount
         ? prev
         : current.bidStatus.includes("Accepted")
-          ? current.amount
-          : prev,
-    0,
+        ? current.amount
+        : prev,
+    0
   );
 
   useEffect(() => {
