@@ -1,4 +1,4 @@
-FROM node:alpine AS deps
+FROM node:18-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN npm install -g pnpm
 ENV NODE_ENV production
 RUN pnpm install
 
-FROM node:alpine AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend/web-app ./
@@ -19,7 +19,7 @@ ENV NODE_ENV production
 RUN pnpm build
 
 # production image, copy all files and run next
-FROM node:alpine AS runner
+FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
