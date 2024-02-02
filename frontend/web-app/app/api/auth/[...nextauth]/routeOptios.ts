@@ -10,7 +10,8 @@ export const authOptions: NextAuthOptions = {
       // this need to match Config.cs RedirectUris
       id: "id-server",
       clientId: "nextApp",
-      clientSecret: process.env.CLIENT_SECRET!,
+      // clientSecret: process.env.CLIENT_SECRET!,
+      clientSecret: "secret",
       issuer: process.env.ID_URL,
       authorization: {
         params: {
