@@ -24,7 +24,7 @@ const SignalRProvider = ({ children, user }: Props) => {
   // see issue of nextjs: https://github.com/vercel/next.js/discussions/17641
   const apiUrl =
     process.env.NODE_ENV === "production"
-      ? "https://api.carsties.com/notifications"
+      ? "https://api.carsties.shop/notifications"
       : process.env.NEXT_PUBLIC_NOTIFY_URL;
 
   useEffect(() => {
