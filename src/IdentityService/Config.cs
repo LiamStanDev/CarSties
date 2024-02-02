@@ -42,7 +42,7 @@ public static class Config
 				RedirectUris = { config["ClientApp"] + "/api/auth/callback/id-server"},
 				AllowOfflineAccess = true,
 				AllowedScopes = {"openid", "profile", "auctionApp"},
-				AccessTokenLifetime = 3600 * 24 * 30, // one month
+				AccessTokenLifetime = 3600 * 24, // one month
                 AlwaysIncludeUserClaimsInIdToken = true // if you use openID connection, you will get client information.
 			}
 		};
