@@ -17,11 +17,10 @@ type Props = {
 };
 
 const SignalRProvider = ({ children, user }: Props) => {
-  const [connection, setConnection] = useState<HubConnection | null>();
+  const [connection, setConnection] = useState<HubConnection | null>(null);
   const setCurrentPrice = useAuctionStore((state) => state.setCurrentPrice);
   const addBid = useBidStore((state) => state.addBid);
 
-  // see issue of nextjs: https://github.com/vercel/next.js/discussions/17641
   const apiUrl =
     process.env.NODE_ENV === "production"
       ? "https://api.carsties.shop/notifications"
@@ -43,7 +42,6 @@ const SignalRProvider = ({ children, user }: Props) => {
         .then(() => {
           console.log("Connected to notification hub");
           connection.on("BidPlaced", (bid: Bid) => {
-            // console.log("Bid placed event received");
             if (bid.bidStatus.includes("Accepted")) {
               setCurrentPrice(bid.auctionId, bid.amount);
             }
@@ -60,19 +58,19 @@ const SignalRProvider = ({ children, user }: Props) => {
 
           connection.on(
             "AuctionFinished",
-            (finishedAution: AuctionFinished) => {
-              const auction = getDetailedViewData(finishedAution.auctionId);
+            (finishedAuction: AuctionFinished) => {
+              const auction = getDetailedViewData(finishedAuction.auctionId);
               return toast.promise(
                 auction,
                 {
                   loading: "Loading",
                   success: (auction) => (
                     <AuctionFinishedToast
+                      finishedAuction={finishedAuction}
                       auction={auction}
-                      finishedAuction={finishedAution}
                     />
                   ),
-                  error: (_) => "Auction finished",
+                  error: (_) => "Auction finished!",
                 },
                 { success: { duration: 10000, icon: null } },
               );
