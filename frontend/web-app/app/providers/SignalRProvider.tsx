@@ -74,9 +74,9 @@ const SignalRProvider = ({ children, user }: Props) => {
                   ),
                   error: (_) => "Auction finished",
                 },
-                { success: { duration: 10000, icon: null } }
+                { success: { duration: 10000, icon: null } },
               );
-            }
+            },
           );
         })
         .catch((error) => console.log(error));
