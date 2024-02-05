@@ -20,7 +20,11 @@ internal static class HostingExtensions
 		);
 
 		builder
-			.Services.AddIdentity<ApplicationUser, IdentityRole>()
+			.Services.AddIdentity<ApplicationUser, IdentityRole>(opt =>
+			{
+				opt.Password.RequireNonAlphanumeric = false;
+				opt.User.RequireUniqueEmail = true;
+			})
 			.AddEntityFrameworkStores<ApplicationDbContext>()
 			.AddDefaultTokenProviders();
 
@@ -31,7 +35,6 @@ internal static class HostingExtensions
 				options.Events.RaiseInformationEvents = true;
 				options.Events.RaiseFailureEvents = true;
 				options.Events.RaiseSuccessEvents = true;
-
 				// 這邊若使用 Development 的話，IssuerUri 默認爲 localhost:5000
 				// 這個值是因爲在 Properties/launchSettings.json 設定的
 				// 但在 docker 環境中這樣不行。需要手動設置
