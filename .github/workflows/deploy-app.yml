@@ -8,7 +8,7 @@ on:
       - "frontend/web-app/**"
 
 env:
-  REGISTERY_IMAGE: "liamstan/wab-app"
+  REGISTERY_IMAGE: "liamstan/web-app"
   DOCKERFILE: "frontend/web-app/Dockerfile"
   DEPLOYMENT_NAME: "webapp"
 
