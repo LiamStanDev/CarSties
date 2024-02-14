@@ -3,9 +3,9 @@
 import { getBidsForAuction } from "@/app/actions/auctionActions";
 import EmptyFilter from "@/app/components/EmptyFilter";
 import Heading from "@/app/components/Heading";
+import { useBidStore } from "@/app/hooks/useBidStore";
 import { numberWithCommas } from "@/app/lib/numberWithComma";
-import { useBidStore } from "@/hooks/useBidStore";
-import { Auction } from "@/types";
+import { Auction } from "@/app/types";
 import { User } from "next-auth";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";

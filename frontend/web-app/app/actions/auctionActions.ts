@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { FieldValues } from "react-hook-form";
 import { fetchWrapper } from "../lib/fetchWraaper";
-import { Auction, Bid, PagedResult } from "@/types";
+import { Auction, Bid, PagedResult } from "../types";
 
 export const getData = async (query: string): Promise<PagedResult<Auction>> => {
   return await fetchWrapper.get(`search/${query}`);
@@ -16,7 +16,7 @@ export const updateAuctionTest = async () => {
 
   return await fetchWrapper.put(
     "auctions/afbee524-5972-4075-8800-7d1f9d7b0a0c",
-    data,
+    data
   );
 };
 
@@ -30,7 +30,7 @@ export const getDetailedViewData = async (id: string): Promise<Auction> => {
 
 export const updateAuction = async (
   data: FieldValues,
-  id: string,
+  id: string
 ): Promise<Auction> => {
   const res = await fetchWrapper.put(`auctions/${id}`, data);
   // the following let this paget don't use cache
@@ -49,6 +49,6 @@ export const getBidsForAuction = async (id: string): Promise<Bid[]> => {
 export const placeBidForAuction = async (auctionId: string, amount: number) => {
   return await fetchWrapper.post(
     `bids?auctionId=${auctionId}&amount=${amount}`,
-    {},
+    {}
   );
 };

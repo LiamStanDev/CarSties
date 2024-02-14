@@ -1,8 +1,5 @@
 "use client";
 
-import { useAuctionStore } from "@/hooks/useAuctionStore";
-import { useBidStore } from "@/hooks/useBidStore";
-import { Auction, AuctionFinished, Bid } from "@/types";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { User } from "next-auth";
 import { ReactNode, useEffect, useState } from "react";
@@ -10,6 +7,9 @@ import toast from "react-hot-toast";
 import { getDetailedViewData } from "../actions/auctionActions";
 import AuctionCreatedToast from "../components/AuctionCreatedToast";
 import AuctionFinishedToast from "../components/AuctionFinishedToast";
+import { useAuctionStore } from "../hooks/useAuctionStore";
+import { useBidStore } from "../hooks/useBidStore";
+import { Auction, AuctionFinished, Bid } from "../types";
 
 type Props = {
   children: ReactNode;
@@ -24,7 +24,8 @@ const SignalRProvider = ({ children, user }: Props) => {
   const apiUrl =
     process.env.NODE_ENV === "production"
       ? "https://api.carsties.shop/notifications"
-      : process.env.NEXT_PUBLIC_NOTIFY_URL;
+      : "https://api.carsties.com/notifications";
+  // : process.env.NEXT_PUBLIC_NOTIFY_URL;
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
@@ -72,9 +73,9 @@ const SignalRProvider = ({ children, user }: Props) => {
                   ),
                   error: (_) => "Auction finished!",
                 },
-                { success: { duration: 10000, icon: null } },
+                { success: { duration: 10000, icon: null } }
               );
-            },
+            }
           );
         })
         .catch((error) => console.log(error));
