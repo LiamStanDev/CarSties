@@ -184,6 +184,7 @@ services:
     expose:
       - 3000
     environment:
+      - NODE_ENV=docker
       - NEXTAUTH_SECRET=sometingreallyreallysecret
       # 這邊都要注意 url 都分爲 server side 與 client side
       - NEXTAUTH_URL=http://app.carsties.com # default server side and client side will use it

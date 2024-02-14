@@ -20,6 +20,7 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapGrpcService<GrpcAuctionService>();
 
+
 // when the capture method is async function, use WaitAndRetryAsync and
 // ExecuteAndCaptureAsync.
 await Policy
@@ -29,3 +30,6 @@ await Policy
 
 
 app.Run();
+
+// exporting Program to Itegration Test
+public partial class Program { }

@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -21,6 +21,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E56806BD-D68D-4FA2-8451-F863B009EB23}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionService.UnitTests", "tests\AuctionService.UnitTests\AuctionService.UnitTests.csproj", "{2D17FC97-81B0-4CF9-8F0E-58B7FE8CB4C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuctionService.IntegrationTests", "tests\AuctionService.IntegrationTests\AuctionService.IntegrationTests.csproj", "{8178125A-F845-4D39-A4BD-B07B585AF12B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{2D17FC97-81B0-4CF9-8F0E-58B7FE8CB4C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D17FC97-81B0-4CF9-8F0E-58B7FE8CB4C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D17FC97-81B0-4CF9-8F0E-58B7FE8CB4C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8178125A-F845-4D39-A4BD-B07B585AF12B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8178125A-F845-4D39-A4BD-B07B585AF12B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8178125A-F845-4D39-A4BD-B07B585AF12B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8178125A-F845-4D39-A4BD-B07B585AF12B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{AF23DAC7-2E77-4A6B-9614-67CD7BF082EE} = {99BDBD8B-0D73-41CA-A870-5B96CD6A7116}
@@ -73,5 +79,6 @@ Global
 		{5446DB14-A388-499A-BAC6-C0047D800382} = {99BDBD8B-0D73-41CA-A870-5B96CD6A7116}
 		{9EF69AB2-A355-431B-8133-B2080B5DD529} = {99BDBD8B-0D73-41CA-A870-5B96CD6A7116}
 		{2D17FC97-81B0-4CF9-8F0E-58B7FE8CB4C2} = {E56806BD-D68D-4FA2-8451-F863B009EB23}
+		{8178125A-F845-4D39-A4BD-B07B585AF12B} = {E56806BD-D68D-4FA2-8451-F863B009EB23}
 	EndGlobalSection
 EndGlobal

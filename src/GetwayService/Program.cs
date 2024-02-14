@@ -30,7 +30,7 @@ builder.Services.AddCors(c =>
 		p.AllowAnyHeader()
 			.AllowAnyMethod()
 			.AllowCredentials()
-			.WithOrigins(builder.Configuration["ClientApp"]);
+			.WithOrigins(builder.Configuration["ClientApp"], "https//app.carsties.com");
 	});
 });
 

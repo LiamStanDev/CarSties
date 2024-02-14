@@ -5,6 +5,7 @@ using AutoMapper;
 using Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionService.Controllers;
@@ -62,7 +63,7 @@ public class AuctionsController : ControllerBase
 		var newAuctionDto = _mapper.Map<AuctionDto>(newAuction);
 		// 爲什麼要將 Publish 放在 SaveChage 前面？ 因爲我們使用 OutBox，當 RabbitMQ
 		// 失效，我們會在 QutBox 添加該 Message，跟其他 EFCore 操作一樣都還沒有寫入數
-		// 據庫中，在 SaveChage 之後才會寫入，也就是說在 SaveChage 前面都是同一個 
+		// 據庫中，在 SaveChage 之後才會寫入，也就是說在 SaveChage 前面都是同一個
 		// transaction。
 		// Outbox 的主要思想是將要發佈的訊息保存在數據庫中，並在數據庫事務成功提交後再
 		// 將它們發佈到消息總線。以下是 Outbox 的一般流程：
@@ -92,12 +93,12 @@ public class AuctionsController : ControllerBase
 
 	[Authorize]
 	[HttpPut("{id}")]
-	public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
+	public async Task<Results<Ok, BadRequest<ProblemDetails>, NotFound, ForbidHttpResult>> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
 	{
 		var auction = await _repo.GetAuctionEntityByIdAsync(id);
 
-		if (auction is null) { return NotFound(); }
-		if (auction.Seller != User.Identity.Name) { return Forbid(); }
+		if (auction is null) { return TypedResults.NotFound(); }
+		if (auction.Seller != User.Identity.Name) { return TypedResults.Forbid(); }
 
 		auction.Update(updateAuctionDto);
 
@@ -107,10 +108,10 @@ public class AuctionsController : ControllerBase
 
 		if (!result)
 		{
-			return BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
+			return TypedResults.BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
 		}
 
-		return Ok();
+		return TypedResults.Ok();
 	}
 
 	// NOTE: Delete is for admin user, because the client may want to revert their auction.

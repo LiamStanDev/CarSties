@@ -17,6 +17,8 @@ public static class ApplicationServiceExtenstions
 			opt.UseNpgsql(config["ConnectionStrings:DefaultConnection"]);
 		});
 
+		services.AddScoped<IAuctionRepository, AuctionRepository>();
+
 
 		// Get all assemblies in this App Domain only inside this process
 		// AddAutoMapper will find class which inherited Profile
