@@ -93,12 +93,12 @@ public class AuctionsController : ControllerBase
 
 	[Authorize]
 	[HttpPut("{id}")]
-	public async Task<Results<Ok, BadRequest<ProblemDetails>, NotFound, ForbidHttpResult>> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
+	public async Task<IActionResult> UpdateAuction(Guid id, UpdateAuctionDto updateAuctionDto)
 	{
 		var auction = await _repo.GetAuctionEntityByIdAsync(id);
 
-		if (auction is null) { return TypedResults.NotFound(); }
-		if (auction.Seller != User.Identity.Name) { return TypedResults.Forbid(); }
+		if (auction is null) { return NotFound(); }
+		if (auction.Seller != User.Identity.Name) { return Forbid(); }
 
 		auction.Update(updateAuctionDto);
 
@@ -108,10 +108,10 @@ public class AuctionsController : ControllerBase
 
 		if (!result)
 		{
-			return TypedResults.BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
+			return BadRequest(new ProblemDetails { Title = "Could not save changes to the database" });
 		}
 
-		return TypedResults.Ok();
+		return Ok();
 	}
 
 	// NOTE: Delete is for admin user, because the client may want to revert their auction.

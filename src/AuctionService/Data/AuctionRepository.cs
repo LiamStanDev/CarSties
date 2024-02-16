@@ -39,7 +39,7 @@ public class AuctionRepository : IAuctionRepository
 	{
 		return await _context.Auctions
 			.ProjectTo<AuctionDto>(_mapper.ConfigurationProvider)
-			.FirstAsync(a => a.Id == id);
+			.FirstOrDefaultAsync(a => a.Id == id);
 	}
 
 	public async Task<Auction> GetAuctionEntityByIdAsync(Guid id)
