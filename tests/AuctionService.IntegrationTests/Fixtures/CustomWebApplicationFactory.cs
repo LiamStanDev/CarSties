@@ -10,6 +10,8 @@ using Testcontainers.PostgreSql;
 
 namespace AuctionService.IntegrationTests.Fixtures;
 
+// The test instance of webapplication by AspNetCore.Mvc.Testing
+// Implement IAsyncLifetim which is from xunit, to create test container when test starting.
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
@@ -24,13 +26,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // this will initial service in  Program, then we can change it
+        // this will initial service in Program, then we can change it
         // with testing one.
         builder.ConfigureTestServices(services =>
         {
             // replace PostgreSQL
             services.RemoveDbContext<Auction>();
-
 
             services.AddDbContext<AuctionDbContext>(opt =>
             {
@@ -41,7 +42,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             // replace Masstransit, using Masstransit built-in functionality
             services.AddMassTransitTestHarness(); // don't do something else
 
-            services.EnsureCreated<AuctionDbContext>();
+            services.InitTestingDb<AuctionDbContext>();
         });
     }
 

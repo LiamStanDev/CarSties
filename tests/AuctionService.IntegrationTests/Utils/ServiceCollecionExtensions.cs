@@ -19,7 +19,7 @@ public static class ServiceCollecionExtensions
         }
     }
 
-    public static void EnsureCreated<T>(this IServiceCollection services)
+    public static void InitTestingDb<T>(this IServiceCollection services)
     {
         // build the DI container with service instances, so we can
         // use it in the test
