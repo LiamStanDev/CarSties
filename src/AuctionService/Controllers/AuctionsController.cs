@@ -5,7 +5,6 @@ using AutoMapper;
 using Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionService.Controllers;
