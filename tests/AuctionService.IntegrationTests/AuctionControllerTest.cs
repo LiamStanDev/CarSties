@@ -4,16 +4,16 @@ using AuctionService.Data;
 using AuctionService.DTOs;
 using AuctionService.IntegrationTests.Fixtures;
 using AuctionService.IntegrationTests.Utils;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Net.Http.Client;
 
 namespace AuctionService.IntegrationTests;
 
 // IClassFixture is decorator which mean the fixture only create once
 // when the first testing in this class running, then dispose when the last
 // testing in this class are finish.
-public class AuctionControllerTest : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
+// Use Collection attribute instead of IClassFixture for sharing fixture.
+[Collection("Shared collection")]
+public class AuctionControllerTest : IAsyncLifetime
 {
     private readonly CustomWebApplicationFactory _factoy;
     private readonly HttpClient _httpClient;
